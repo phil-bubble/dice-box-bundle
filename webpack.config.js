@@ -13,8 +13,7 @@ module.exports = {
       export: 'default'
     },
     globalObject: 'this',
-    clean: true,
-    publicPath: 'https://phil-bubble.github.io/dice-box-bundle/'
+    clean: true
   },
   optimization: {
     minimize: false
@@ -30,13 +29,6 @@ module.exports = {
             presets: ['@babel/preset-env']
           }
         }
-      },
-      {
-        test: /\.wasm$/,
-        type: 'asset/resource',
-        generator: {
-          filename: 'assets/ammo/[name][ext]'
-        }
       }
     ]
   },
@@ -44,10 +36,14 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
+          from: 'node_modules/@3d-dice/dice-box/dist/assets/ammo/ammo.wasm.wasm',
+          to: 'assets/ammo/ammo.wasm.wasm'
+        },
+        {
           from: 'node_modules/@3d-dice/dice-box/dist/assets',
           to: 'assets',
           globOptions: {
-            ignore: ['**/*.wasm']  // Don't copy WASM files, they're handled by the module rule
+            ignore: ['**/ammo/**']  // Don't copy ammo folder as we handle it separately
           }
         },
         {
@@ -59,8 +55,5 @@ module.exports = {
   ],
   resolve: {
     extensions: ['.js', '.json', '.wasm']
-  },
-  experiments: {
-    asyncWebAssembly: true
   }
 }
