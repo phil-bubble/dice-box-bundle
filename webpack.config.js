@@ -41,16 +41,11 @@ module.exports = {
         {
           from: '_headers',
           to: '_headers'
-        },
-        {
-          from: '_mime.types',
-          to: '_mime.types'
-        },
-        {
-          from: 'CNAME',
-          to: 'CNAME'
         }
       ]
     })
-  ]
+  ],
+  experiments: {
+    asyncWebAssembly: true  // Enable WASM support
+  }
 };
