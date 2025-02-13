@@ -25,6 +25,10 @@ module.exports = {
             presets: ['@babel/preset-env']
           }
         }
+      },
+      {
+        test: /\.wasm$/,
+        type: 'asset/resource'
       }
     ]
   },
@@ -46,6 +50,6 @@ module.exports = {
     })
   ],
   experiments: {
-    asyncWebAssembly: true  // Enable WASM support
+    asyncWebAssembly: true
   }
 };
