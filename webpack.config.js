@@ -5,18 +5,23 @@ module.exports = {
   mode: 'production',
   entry: './src/entry.js',
   output: {
-    path: path.resolve(__dirname, 'dist'),
     filename: 'dice-box.bundle.js',
+    path: path.resolve(__dirname, 'dist'),
     library: {
       name: 'DiceBox',
       type: 'umd',
       export: 'default'
     },
     globalObject: 'this',
+    publicPath: 'auto',
     clean: true
   },
   optimization: {
     minimize: false
+  },
+  experiments: {
+    asyncWebAssembly: true,
+    syncWebAssembly: true
   },
   module: {
     rules: [
@@ -29,6 +34,10 @@ module.exports = {
             presets: ['@babel/preset-env']
           }
         }
+      },
+      {
+        test: /\.wasm$/,
+        type: "asset/resource"
       }
     ]
   },
@@ -36,14 +45,10 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          from: 'node_modules/@3d-dice/dice-box/dist/assets/ammo/ammo.wasm.wasm',
-          to: 'assets/ammo/ammo.wasm.wasm'
-        },
-        {
           from: 'node_modules/@3d-dice/dice-box/dist/assets',
           to: 'assets',
           globOptions: {
-            ignore: ['**/ammo/**']  // Don't copy ammo folder as we handle it separately
+            ignore: ['**/*.js']
           }
         },
         {
