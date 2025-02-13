@@ -25,25 +25,18 @@ module.exports = {
             presets: ['@babel/preset-env']
           }
         }
-      },
-      {
-        test: /\.wasm$/,
-        type: 'asset/resource',
-        generator: {
-          filename: 'assets/ammo/[name][ext]'
-        }
       }
     ]
-  },
-  experiments: {
-    asyncWebAssembly: true
   },
   plugins: [
     new CopyPlugin({
       patterns: [
         {
           from: 'node_modules/@3d-dice/dice-box/dist/assets',
-          to: 'assets'
+          to: 'assets',
+          globOptions: {
+            ignore: ['**/*.js']
+          }
         },
         {
           from: '_headers',
