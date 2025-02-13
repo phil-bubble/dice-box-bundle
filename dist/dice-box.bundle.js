@@ -47349,6 +47349,14 @@ function entry_setPrototypeOf(t, e) { return entry_setPrototypeOf = Object.setPr
 var entry_ExtendedDiceBox = /*#__PURE__*/function (_DiceBox) {
   function ExtendedDiceBox(config) {
     entry_classCallCheck(this, ExtendedDiceBox);
+    // Log the environment
+    console.log('🎲 DiceBox Environment:', {
+      window: typeof window !== 'undefined',
+      WebAssembly: typeof WebAssembly !== 'undefined',
+      fetch: typeof fetch !== 'undefined',
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'
+    });
+
     // Normalize paths
     var normalizedConfig = entry_objectSpread({}, config);
 
@@ -47364,7 +47372,14 @@ var entry_ExtendedDiceBox = /*#__PURE__*/function (_DiceBox) {
 
     // Make sure we're using the correct WASM file path
     normalizedConfig.wasmPath = normalizedConfig.assetPath + 'ammo/ammo.wasm.wasm';
-    console.log('🎲 DiceBox Config:', normalizedConfig);
+    console.log('🎲 DiceBox Initialization:', {
+      config: normalizedConfig,
+      wasmPath: normalizedConfig.wasmPath,
+      assetPath: normalizedConfig.assetPath,
+      origin: normalizedConfig.origin,
+      theme: normalizedConfig.theme,
+      themePath: normalizedConfig.themePath
+    });
     return entry_callSuper(this, ExtendedDiceBox, [normalizedConfig]);
   }
   entry_inherits(ExtendedDiceBox, _DiceBox);
@@ -47372,27 +47387,68 @@ var entry_ExtendedDiceBox = /*#__PURE__*/function (_DiceBox) {
     key: "init",
     value: function () {
       var _init = entry_asyncToGenerator(/*#__PURE__*/entry_regeneratorRuntime().mark(function _callee() {
+        var wasmPath, response;
         return entry_regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) switch (_context.prev = _context.next) {
             case 0:
               _context.prev = 0;
               console.log('🎲 DiceBox: Starting initialization...');
-              _context.next = 4;
-              return entry_superPropGet(ExtendedDiceBox, "init", this, 3)([]);
-            case 4:
-              console.log('🎲 DiceBox: Initialized successfully');
-              _context.next = 11;
-              break;
+
+              // Check WASM file before initialization
+              wasmPath = this.config.wasmPath || this.config.assetPath + 'ammo/ammo.wasm.wasm';
+              console.log('🎲 DiceBox: Checking WASM file...', {
+                wasmPath: wasmPath
+              });
+              _context.prev = 4;
+              _context.next = 7;
+              return fetch(wasmPath);
             case 7:
-              _context.prev = 7;
-              _context.t0 = _context["catch"](0);
-              console.error('🎲 DiceBox: Initialization failed:', _context.t0);
-              throw _context.t0;
+              response = _context.sent;
+              console.log('🎲 DiceBox: WASM fetch response:', {
+                ok: response.ok,
+                status: response.status,
+                statusText: response.statusText,
+                headers: Object.fromEntries(response.headers.entries())
+              });
+              if (response.ok) {
+                _context.next = 11;
+                break;
+              }
+              throw new Error("WASM file not accessible: ".concat(response.status, " ").concat(response.statusText));
             case 11:
+              _context.next = 17;
+              break;
+            case 13:
+              _context.prev = 13;
+              _context.t0 = _context["catch"](4);
+              console.error('🎲 DiceBox: WASM file check failed:', {
+                error: _context.t0,
+                message: _context.t0.message,
+                stack: _context.t0.stack
+              });
+              throw _context.t0;
+            case 17:
+              _context.next = 19;
+              return entry_superPropGet(ExtendedDiceBox, "init", this, 3)([]);
+            case 19:
+              console.log('🎲 DiceBox: Initialized successfully');
+              _context.next = 26;
+              break;
+            case 22:
+              _context.prev = 22;
+              _context.t1 = _context["catch"](0);
+              console.error('🎲 DiceBox: Initialization failed:', {
+                error: _context.t1,
+                message: _context.t1.message,
+                stack: _context.t1.stack,
+                config: this.config
+              });
+              throw _context.t1;
+            case 26:
             case "end":
               return _context.stop();
           }
-        }, _callee, this, [[0, 7]]);
+        }, _callee, this, [[0, 22], [4, 13]]);
       }));
       function init() {
         return _init.apply(this, arguments);
