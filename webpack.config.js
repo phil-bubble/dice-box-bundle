@@ -34,6 +34,10 @@ module.exports = {
         {
           from: 'node_modules/@3d-dice/dice-box/dist/assets',
           to: 'assets'
+        },
+        {
+          from: '_headers',
+          to: '_headers'
         }
       ]
     })
