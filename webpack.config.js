@@ -25,8 +25,18 @@ module.exports = {
             presets: ['@babel/preset-env']
           }
         }
+      },
+      {
+        test: /\.wasm$/,
+        type: 'asset/resource',
+        generator: {
+          filename: 'assets/ammo/[name][ext]'
+        }
       }
     ]
+  },
+  experiments: {
+    asyncWebAssembly: true
   },
   plugins: [
     new CopyPlugin({
@@ -38,6 +48,14 @@ module.exports = {
         {
           from: '_headers',
           to: '_headers'
+        },
+        {
+          from: '_mime.types',
+          to: '_mime.types'
+        },
+        {
+          from: 'CNAME',
+          to: 'CNAME'
         }
       ]
     })
