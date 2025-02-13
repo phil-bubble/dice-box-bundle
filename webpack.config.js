@@ -13,6 +13,7 @@ module.exports = {
     },
     globalObject: 'this',
     clean: true,
+    publicPath: 'auto',
   },
   module: {
     rules: [
@@ -39,6 +40,13 @@ module.exports = {
         generator: {
           filename: 'assets/themes/[path][name][ext]'
         }
+      },
+      {
+        test: /\.wasm$/,
+        type: 'asset/resource',
+        generator: {
+          filename: 'assets/ammo/[name][ext]'
+        }
       }
     ]
   },
@@ -51,11 +59,27 @@ module.exports = {
           globOptions: {
             ignore: ['**/.DS_Store'],
           },
+        },
+        {
+          from: 'node_modules/@3d-dice/dice-box/dist/assets/ammo',
+          to: 'assets/ammo',
+          globOptions: {
+            ignore: ['**/.DS_Store'],
+          },
         }
       ]
     })
   ],
   resolve: {
-    extensions: ['.js', '.json']
+    extensions: ['.js', '.json', '.wasm'],
+    fallback: {
+      fs: false,
+      path: false,
+      crypto: false
+    }
+  },
+  experiments: {
+    asyncWebAssembly: true,
+    topLevelAwait: true
   }
 };
