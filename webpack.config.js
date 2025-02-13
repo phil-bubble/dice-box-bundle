@@ -20,6 +20,10 @@ module.exports = {
     globalObject: 'this',
     clean: true,
   },
+  optimization: {
+    splitChunks: false,
+    minimize: true,
+  },
   module: {
     rules: [
       {
