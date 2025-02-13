@@ -28,16 +28,18 @@ class ExtendedDiceBox extends DiceBox {
             normalizedConfig.origin += '/';
         }
 
-        // Make sure we're using the correct WASM file path
-        normalizedConfig.wasmPath = normalizedConfig.assetPath + 'ammo/ammo.wasm.wasm';
-        
+        // Configure for offscreen rendering
+        normalizedConfig.offscreen = true;
+        normalizedConfig.assetPath = new URL(normalizedConfig.assetPath).toString();
+        normalizedConfig.origin = new URL(normalizedConfig.origin).toString();
+        normalizedConfig.wasmPath = new URL('ammo/ammo.wasm.wasm', normalizedConfig.assetPath).toString();
+
         console.log('🎲 DiceBox Initialization:', {
             config: normalizedConfig,
             wasmPath: normalizedConfig.wasmPath,
             assetPath: normalizedConfig.assetPath,
             origin: normalizedConfig.origin,
-            theme: normalizedConfig.theme,
-            themePath: normalizedConfig.themePath
+            theme: normalizedConfig.theme
         });
 
         // Add custom WASM loading logic
@@ -75,6 +77,20 @@ class ExtendedDiceBox extends DiceBox {
     async init() {
         try {
             console.log('🎲 DiceBox: Starting initialization...');
+            
+            // Create a safe copy of the config for worker
+            const workerConfig = {
+                ...this.config,
+                // Convert URLs to strings to make them cloneable
+                assetPath: this.config.assetPath.toString(),
+                origin: this.config.origin.toString(),
+                wasmPath: this.config.wasmPath.toString(),
+                // Remove non-cloneable properties
+                wasmLoader: undefined
+            };
+
+            // Initialize with safe config
+            this.config = workerConfig;
             await super.init();
             console.log('🎲 DiceBox: Initialized successfully');
         } catch (error) {

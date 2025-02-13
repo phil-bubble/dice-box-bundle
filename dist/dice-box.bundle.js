@@ -47370,15 +47370,17 @@ var entry_ExtendedDiceBox = /*#__PURE__*/function (_DiceBox) {
       normalizedConfig.origin += '/';
     }
 
-    // Make sure we're using the correct WASM file path
-    normalizedConfig.wasmPath = normalizedConfig.assetPath + 'ammo/ammo.wasm.wasm';
+    // Configure for offscreen rendering
+    normalizedConfig.offscreen = true;
+    normalizedConfig.assetPath = new URL(normalizedConfig.assetPath).toString();
+    normalizedConfig.origin = new URL(normalizedConfig.origin).toString();
+    normalizedConfig.wasmPath = new URL('ammo/ammo.wasm.wasm', normalizedConfig.assetPath).toString();
     console.log('🎲 DiceBox Initialization:', {
       config: normalizedConfig,
       wasmPath: normalizedConfig.wasmPath,
       assetPath: normalizedConfig.assetPath,
       origin: normalizedConfig.origin,
-      theme: normalizedConfig.theme,
-      themePath: normalizedConfig.themePath
+      theme: normalizedConfig.theme
     });
 
     // Add custom WASM loading logic
@@ -47448,19 +47450,31 @@ var entry_ExtendedDiceBox = /*#__PURE__*/function (_DiceBox) {
     key: "init",
     value: function () {
       var _init = entry_asyncToGenerator(/*#__PURE__*/entry_regeneratorRuntime().mark(function _callee2() {
+        var workerConfig;
         return entry_regeneratorRuntime().wrap(function _callee2$(_context2) {
           while (1) switch (_context2.prev = _context2.next) {
             case 0:
               _context2.prev = 0;
               console.log('🎲 DiceBox: Starting initialization...');
-              _context2.next = 4;
+
+              // Create a safe copy of the config for worker
+              workerConfig = entry_objectSpread(entry_objectSpread({}, this.config), {}, {
+                // Convert URLs to strings to make them cloneable
+                assetPath: this.config.assetPath.toString(),
+                origin: this.config.origin.toString(),
+                wasmPath: this.config.wasmPath.toString(),
+                // Remove non-cloneable properties
+                wasmLoader: undefined
+              }); // Initialize with safe config
+              this.config = workerConfig;
+              _context2.next = 6;
               return entry_superPropGet(ExtendedDiceBox, "init", this, 3)([]);
-            case 4:
+            case 6:
               console.log('🎲 DiceBox: Initialized successfully');
-              _context2.next = 11;
+              _context2.next = 13;
               break;
-            case 7:
-              _context2.prev = 7;
+            case 9:
+              _context2.prev = 9;
               _context2.t0 = _context2["catch"](0);
               console.error('🎲 DiceBox: Initialization failed:', {
                 error: _context2.t0,
@@ -47469,11 +47483,11 @@ var entry_ExtendedDiceBox = /*#__PURE__*/function (_DiceBox) {
                 config: this.config
               });
               throw _context2.t0;
-            case 11:
+            case 13:
             case "end":
               return _context2.stop();
           }
-        }, _callee2, this, [[0, 7]]);
+        }, _callee2, this, [[0, 9]]);
       }));
       function init() {
         return _init.apply(this, arguments);
