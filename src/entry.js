@@ -8,33 +8,6 @@ import { embeddedWasmBinary } from './wasm-loader';
 // Extend DiceBox to use embedded WASM
 class ExtendedDiceBox extends DiceBox {
     constructor(config) {
-        // Pre-initialize Ammo.js with our embedded WASM
-        if (typeof Ammo === 'undefined') {
-            console.log(' Pre-initializing Ammo.js with embedded WASM...');
-            window.Ammo = async () => {
-                return new Promise((resolve, reject) => {
-                    try {
-                        // Create a Blob from the WASM binary
-                        const blob = new Blob([embeddedWasmBinary], { type: 'application/wasm' });
-                        const url = URL.createObjectURL(blob);
-                        
-                        // Load the WASM module
-                        WebAssembly.instantiateStreaming(fetch(url), {})
-                            .then(result => {
-                                URL.revokeObjectURL(url);
-                                resolve(result.instance.exports);
-                            })
-                            .catch(error => {
-                                URL.revokeObjectURL(url);
-                                reject(error);
-                            });
-                    } catch (error) {
-                        reject(error);
-                    }
-                });
-            };
-        }
-
         // Initialize DiceBox with the config
         super({
             ...config,
@@ -45,10 +18,33 @@ class ExtendedDiceBox extends DiceBox {
     // Override init to ensure Ammo.js is initialized first
     async init() {
         try {
-            // Wait for Ammo.js to be ready
-            if (typeof Ammo === 'function') {
-                await Ammo();
+            // Initialize Ammo.js if not already initialized
+            if (typeof Ammo === 'undefined') {
+                console.log(' Pre-initializing Ammo.js...');
+                const wasmBinary = new Uint8Array(embeddedWasmBinary);
+                
+                // Create the import object that Ammo.js expects
+                const imports = {
+                    env: {
+                        memory: new WebAssembly.Memory({ initial: 256, maximum: 256 }),
+                        table: new WebAssembly.Table({ initial: 0, element: 'anyfunc' }),
+                        __memory_base: 0,
+                        __table_base: 0,
+                        _abort: () => {},
+                        _emscripten_memcpy_big: () => {},
+                        _emscripten_resize_heap: () => {},
+                        abortStackOverflow: () => {},
+                    }
+                };
+
+                // Compile and instantiate the WASM module
+                const wasmModule = await WebAssembly.compile(wasmBinary);
+                const instance = await WebAssembly.instantiate(wasmModule, imports);
+                
+                // Set up Ammo global
+                window.Ammo = instance.exports;
             }
+
             // Call parent init
             return await super.init();
         } catch (error) {
