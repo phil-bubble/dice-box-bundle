@@ -2,10 +2,11 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
+  mode: 'production',
   entry: './src/entry.js',
   output: {
-    filename: 'dice-box.bundle.js',
     path: path.resolve(__dirname, 'dist'),
+    filename: 'dice-box.bundle.js',
     library: {
       name: 'DiceBox',
       type: 'umd',
@@ -14,42 +15,30 @@ module.exports = {
     globalObject: 'this',
     clean: true
   },
+  experiments: {
+    asyncWebAssembly: true,
+    topLevelAwait: true
+  },
   module: {
     rules: [
       {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env']
-          }
-        }
-      },
-      {
         test: /\.wasm$/,
-        type: 'asset/resource'
+        type: "asset/resource"
       }
     ]
   },
   plugins: [
     new CopyPlugin({
       patterns: [
-        {
-          from: 'node_modules/@3d-dice/dice-box/dist/assets',
-          to: 'assets',
-          globOptions: {
-            ignore: ['**/*.js']  // Don't ignore WASM files
-          }
+        { 
+          from: "node_modules/@3d-dice/dice-box/dist/assets",
+          to: "assets"
         },
         {
-          from: '_headers',
-          to: '_headers'
+          from: "_headers",
+          to: "_headers"
         }
       ]
     })
-  ],
-  experiments: {
-    asyncWebAssembly: true
-  }
+  ]
 };
