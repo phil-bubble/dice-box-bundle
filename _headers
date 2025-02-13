@@ -6,11 +6,17 @@
 /assets/ammo/ammo.wasm.wasm
   Content-Type: application/wasm
   Access-Control-Allow-Origin: *
-
-/*.js
-  Content-Type: application/javascript
-  Access-Control-Allow-Origin: *
+  Cross-Origin-Resource-Policy: cross-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Opener-Policy: same-origin
 
 /*.wasm
   Content-Type: application/wasm
+  Access-Control-Allow-Origin: *
+  Cross-Origin-Resource-Policy: cross-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Opener-Policy: same-origin
+
+/*.js
+  Content-Type: application/javascript
   Access-Control-Allow-Origin: *
