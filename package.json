@@ -1,0 +1,31 @@
+{
+  "name": "dice-box-bundle",
+  "version": "1.0.0",
+  "description": "Bundled version of @3d-dice/dice-box with themes for Bubble.io plugin",
+  "main": "dist/dice-box.bundle.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "dice",
+    "3d",
+    "bubble.io",
+    "plugin"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@3d-dice/dice-box": "^1.1.4",
+    "@3d-dice/dice-themes": "^0.2.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.8",
+    "@babel/preset-env": "^7.26.8",
+    "babel-loader": "^9.2.1",
+    "copy-webpack-plugin": "^12.0.2",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1"
+  }
+}
