@@ -47380,75 +47380,100 @@ var entry_ExtendedDiceBox = /*#__PURE__*/function (_DiceBox) {
       theme: normalizedConfig.theme,
       themePath: normalizedConfig.themePath
     });
+
+    // Add custom WASM loading logic
+    normalizedConfig.wasmLoader = /*#__PURE__*/function () {
+      var _ref = entry_asyncToGenerator(/*#__PURE__*/entry_regeneratorRuntime().mark(function _callee(wasmPath) {
+        var response, wasmModule, wasmBuffer, _wasmModule;
+        return entry_regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              console.log('🎲 DiceBox: Loading WASM from:', wasmPath);
+              _context.prev = 1;
+              _context.next = 4;
+              return fetch(wasmPath);
+            case 4:
+              response = _context.sent;
+              if (response.ok) {
+                _context.next = 7;
+                break;
+              }
+              throw new Error("Failed to fetch WASM: ".concat(response.status, " ").concat(response.statusText));
+            case 7:
+              _context.prev = 7;
+              console.log('🎲 DiceBox: Attempting streaming compilation...');
+              _context.next = 11;
+              return WebAssembly.compileStreaming(fetch(wasmPath));
+            case 11:
+              wasmModule = _context.sent;
+              console.log('🎲 DiceBox: Streaming compilation successful');
+              return _context.abrupt("return", wasmModule);
+            case 16:
+              _context.prev = 16;
+              _context.t0 = _context["catch"](7);
+              console.log('🎲 DiceBox: Streaming compilation failed, falling back to regular compilation...', _context.t0);
+              // Fall back to regular compilation
+              _context.next = 21;
+              return response.arrayBuffer();
+            case 21:
+              wasmBuffer = _context.sent;
+              _context.next = 24;
+              return WebAssembly.compile(wasmBuffer);
+            case 24:
+              _wasmModule = _context.sent;
+              console.log('🎲 DiceBox: Regular compilation successful');
+              return _context.abrupt("return", _wasmModule);
+            case 27:
+              _context.next = 33;
+              break;
+            case 29:
+              _context.prev = 29;
+              _context.t1 = _context["catch"](1);
+              console.error('🎲 DiceBox: WASM loading failed:', _context.t1);
+              throw _context.t1;
+            case 33:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, null, [[1, 29], [7, 16]]);
+      }));
+      return function (_x) {
+        return _ref.apply(this, arguments);
+      };
+    }();
     return entry_callSuper(this, ExtendedDiceBox, [normalizedConfig]);
   }
   entry_inherits(ExtendedDiceBox, _DiceBox);
   return entry_createClass(ExtendedDiceBox, [{
     key: "init",
     value: function () {
-      var _init = entry_asyncToGenerator(/*#__PURE__*/entry_regeneratorRuntime().mark(function _callee() {
-        var wasmPath, response;
-        return entry_regeneratorRuntime().wrap(function _callee$(_context) {
-          while (1) switch (_context.prev = _context.next) {
+      var _init = entry_asyncToGenerator(/*#__PURE__*/entry_regeneratorRuntime().mark(function _callee2() {
+        return entry_regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
             case 0:
-              _context.prev = 0;
+              _context2.prev = 0;
               console.log('🎲 DiceBox: Starting initialization...');
-
-              // Check WASM file before initialization
-              wasmPath = this.config.wasmPath || this.config.assetPath + 'ammo/ammo.wasm.wasm';
-              console.log('🎲 DiceBox: Checking WASM file...', {
-                wasmPath: wasmPath
-              });
-              _context.prev = 4;
-              _context.next = 7;
-              return fetch(wasmPath);
-            case 7:
-              response = _context.sent;
-              console.log('🎲 DiceBox: WASM fetch response:', {
-                ok: response.ok,
-                status: response.status,
-                statusText: response.statusText,
-                headers: Object.fromEntries(response.headers.entries())
-              });
-              if (response.ok) {
-                _context.next = 11;
-                break;
-              }
-              throw new Error("WASM file not accessible: ".concat(response.status, " ").concat(response.statusText));
-            case 11:
-              _context.next = 17;
-              break;
-            case 13:
-              _context.prev = 13;
-              _context.t0 = _context["catch"](4);
-              console.error('🎲 DiceBox: WASM file check failed:', {
-                error: _context.t0,
-                message: _context.t0.message,
-                stack: _context.t0.stack
-              });
-              throw _context.t0;
-            case 17:
-              _context.next = 19;
+              _context2.next = 4;
               return entry_superPropGet(ExtendedDiceBox, "init", this, 3)([]);
-            case 19:
+            case 4:
               console.log('🎲 DiceBox: Initialized successfully');
-              _context.next = 26;
+              _context2.next = 11;
               break;
-            case 22:
-              _context.prev = 22;
-              _context.t1 = _context["catch"](0);
+            case 7:
+              _context2.prev = 7;
+              _context2.t0 = _context2["catch"](0);
               console.error('🎲 DiceBox: Initialization failed:', {
-                error: _context.t1,
-                message: _context.t1.message,
-                stack: _context.t1.stack,
+                error: _context2.t0,
+                message: _context2.t0.message,
+                stack: _context2.t0.stack,
                 config: this.config
               });
-              throw _context.t1;
-            case 26:
+              throw _context2.t0;
+            case 11:
             case "end":
-              return _context.stop();
+              return _context2.stop();
           }
-        }, _callee, this, [[0, 22], [4, 13]]);
+        }, _callee2, this, [[0, 7]]);
       }));
       function init() {
         return _init.apply(this, arguments);

@@ -39,6 +39,35 @@ class ExtendedDiceBox extends DiceBox {
             theme: normalizedConfig.theme,
             themePath: normalizedConfig.themePath
         });
+
+        // Add custom WASM loading logic
+        normalizedConfig.wasmLoader = async (wasmPath) => {
+            console.log('🎲 DiceBox: Loading WASM from:', wasmPath);
+            try {
+                const response = await fetch(wasmPath);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch WASM: ${response.status} ${response.statusText}`);
+                }
+                
+                // Try compileStreaming first
+                try {
+                    console.log('🎲 DiceBox: Attempting streaming compilation...');
+                    const wasmModule = await WebAssembly.compileStreaming(fetch(wasmPath));
+                    console.log('🎲 DiceBox: Streaming compilation successful');
+                    return wasmModule;
+                } catch (streamError) {
+                    console.log('🎲 DiceBox: Streaming compilation failed, falling back to regular compilation...', streamError);
+                    // Fall back to regular compilation
+                    const wasmBuffer = await response.arrayBuffer();
+                    const wasmModule = await WebAssembly.compile(wasmBuffer);
+                    console.log('🎲 DiceBox: Regular compilation successful');
+                    return wasmModule;
+                }
+            } catch (error) {
+                console.error('🎲 DiceBox: WASM loading failed:', error);
+                throw error;
+            }
+        };
         
         super(normalizedConfig);
     }
@@ -46,32 +75,6 @@ class ExtendedDiceBox extends DiceBox {
     async init() {
         try {
             console.log('🎲 DiceBox: Starting initialization...');
-            
-            // Check WASM file before initialization
-            const wasmPath = this.config.wasmPath || this.config.assetPath + 'ammo/ammo.wasm.wasm';
-            console.log('🎲 DiceBox: Checking WASM file...', { wasmPath });
-            
-            try {
-                const response = await fetch(wasmPath);
-                console.log('🎲 DiceBox: WASM fetch response:', {
-                    ok: response.ok,
-                    status: response.status,
-                    statusText: response.statusText,
-                    headers: Object.fromEntries(response.headers.entries())
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`WASM file not accessible: ${response.status} ${response.statusText}`);
-                }
-            } catch (wasmError) {
-                console.error('🎲 DiceBox: WASM file check failed:', {
-                    error: wasmError,
-                    message: wasmError.message,
-                    stack: wasmError.stack
-                });
-                throw wasmError;
-            }
-
             await super.init();
             console.log('🎲 DiceBox: Initialized successfully');
         } catch (error) {
