@@ -35,7 +35,7 @@ module.exports = {
           from: 'node_modules/@3d-dice/dice-box/dist/assets',
           to: 'assets',
           globOptions: {
-            ignore: ['**/*.js']
+            ignore: ['**/*.js']  // Don't ignore WASM files
           }
         },
         {
