@@ -15,91 +15,75 @@ class ExtendedDiceBox extends DiceBox {
             userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'
         });
 
-        // Normalize paths
-        const normalizedConfig = { ...config };
-        
-        // Ensure assetPath ends with a slash
-        if (normalizedConfig.assetPath && !normalizedConfig.assetPath.endsWith('/')) {
-            normalizedConfig.assetPath += '/';
+        // Create a clean configuration that can be safely cloned
+        const cleanConfig = {
+            // Required core properties
+            id: config.id,
+            theme: config.theme || 'default',
+            scale: config.scale || 6,
+            offscreen: true,
+            
+            // Ensure URLs are absolute and properly formatted
+            assetPath: new URL(config.assetPath, window.location.href).toString(),
+            origin: new URL(config.origin, window.location.href).toString(),
+            
+            // Optional properties
+            themeDirectory: config.themeDirectory ? 
+                new URL(config.themeDirectory, window.location.href).toString() : 
+                undefined
+        };
+
+        // Ensure paths end with slashes
+        if (!cleanConfig.assetPath.endsWith('/')) cleanConfig.assetPath += '/';
+        if (!cleanConfig.origin.endsWith('/')) cleanConfig.origin += '/';
+        if (cleanConfig.themeDirectory && !cleanConfig.themeDirectory.endsWith('/')) {
+            cleanConfig.themeDirectory += '/';
         }
 
-        // Ensure origin ends with a slash
-        if (normalizedConfig.origin && !normalizedConfig.origin.endsWith('/')) {
-            normalizedConfig.origin += '/';
-        }
-
-        // Configure for offscreen rendering
-        normalizedConfig.offscreen = true;
-        normalizedConfig.assetPath = new URL(normalizedConfig.assetPath).toString();
-        normalizedConfig.origin = new URL(normalizedConfig.origin).toString();
-        normalizedConfig.wasmPath = new URL('ammo/ammo.wasm.wasm', normalizedConfig.assetPath).toString();
+        // Set WASM path
+        cleanConfig.wasmPath = new URL('ammo/ammo.wasm.wasm', cleanConfig.assetPath).toString();
 
         console.log('🎲 DiceBox Initialization:', {
-            config: normalizedConfig,
-            wasmPath: normalizedConfig.wasmPath,
-            assetPath: normalizedConfig.assetPath,
-            origin: normalizedConfig.origin,
-            theme: normalizedConfig.theme
+            config: cleanConfig,
+            wasmPath: cleanConfig.wasmPath,
+            assetPath: cleanConfig.assetPath,
+            origin: cleanConfig.origin,
+            theme: cleanConfig.theme
         });
 
-        // Add custom WASM loading logic
-        normalizedConfig.wasmLoader = async (wasmPath) => {
-            console.log('🎲 DiceBox: Loading WASM from:', wasmPath);
-            try {
-                const response = await fetch(wasmPath);
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch WASM: ${response.status} ${response.statusText}`);
-                }
-                
-                // Try compileStreaming first
-                try {
-                    console.log('🎲 DiceBox: Attempting streaming compilation...');
-                    const wasmModule = await WebAssembly.compileStreaming(fetch(wasmPath));
-                    console.log('🎲 DiceBox: Streaming compilation successful');
-                    return wasmModule;
-                } catch (streamError) {
-                    console.log('🎲 DiceBox: Streaming compilation failed, falling back to regular compilation...', streamError);
-                    // Fall back to regular compilation
-                    const wasmBuffer = await response.arrayBuffer();
-                    const wasmModule = await WebAssembly.compile(wasmBuffer);
-                    console.log('🎲 DiceBox: Regular compilation successful');
-                    return wasmModule;
-                }
-            } catch (error) {
-                console.error('🎲 DiceBox: WASM loading failed:', error);
-                throw error;
-            }
-        };
-        
-        super(normalizedConfig);
+        // Initialize with clean config
+        super(cleanConfig);
     }
 
     async init() {
         try {
             console.log('🎲 DiceBox: Starting initialization...');
             
-            // Create a safe copy of the config for worker
-            const workerConfig = {
-                ...this.config,
-                // Convert URLs to strings to make them cloneable
-                assetPath: this.config.assetPath.toString(),
-                origin: this.config.origin.toString(),
-                wasmPath: this.config.wasmPath.toString(),
-                // Remove non-cloneable properties
-                wasmLoader: undefined
-            };
+            // Verify WASM availability before proceeding
+            const wasmResponse = await fetch(this.config.wasmPath);
+            if (!wasmResponse.ok) {
+                throw new Error(`WASM file not accessible: ${wasmResponse.status} ${wasmResponse.statusText}`);
+            }
 
-            // Initialize with safe config
-            this.config = workerConfig;
+            // Initialize with verified configuration
             await super.init();
             console.log('🎲 DiceBox: Initialized successfully');
         } catch (error) {
             console.error('🎲 DiceBox: Initialization failed:', {
                 error: error,
                 message: error.message,
-                stack: error.stack,
-                config: this.config
+                stack: error.stack
             });
+            throw error;
+        }
+    }
+
+    destroy() {
+        try {
+            super.destroy();
+            console.log('🎲 DiceBox: Destroyed successfully');
+        } catch (error) {
+            console.error('🎲 DiceBox: Destroy failed:', error);
             throw error;
         }
     }
