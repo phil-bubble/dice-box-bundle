@@ -13,7 +13,7 @@ module.exports = {
     },
     globalObject: 'this',
     clean: true,
-    publicPath: 'auto',
+    publicPath: '/',
   },
   module: {
     rules: [
@@ -45,7 +45,7 @@ module.exports = {
         test: /\.wasm$/,
         type: 'asset/resource',
         generator: {
-          filename: 'assets/ammo/[name][ext]'
+          filename: 'assets/[name][ext]'
         }
       }
     ]
@@ -61,11 +61,8 @@ module.exports = {
           },
         },
         {
-          from: 'node_modules/@3d-dice/dice-box/dist/assets/ammo',
-          to: 'assets/ammo',
-          globOptions: {
-            ignore: ['**/.DS_Store'],
-          },
+          from: 'node_modules/@3d-dice/dice-box/dist/assets/ammo/ammo.wasm.wasm',
+          to: 'assets/ammo.wasm.wasm'
         }
       ]
     })
