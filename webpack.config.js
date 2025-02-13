@@ -14,7 +14,9 @@ module.exports = {
     },
     globalObject: 'this',
     clean: true,
-    publicPath: 'auto',
+  },
+  optimization: {
+    minimize: false
   },
   module: {
     rules: [
@@ -27,27 +29,6 @@ module.exports = {
             presets: ['@babel/preset-env']
           }
         }
-      },
-      {
-        test: /\.(png|jpg|jpeg|gif)$/i,
-        type: 'asset/resource',
-        generator: {
-          filename: 'assets/themes/[path][name][ext]'
-        }
-      },
-      {
-        test: /\.json$/,
-        type: 'asset/resource',
-        generator: {
-          filename: 'assets/themes/[path][name][ext]'
-        }
-      },
-      {
-        test: /\.wasm$/,
-        type: 'asset/resource',
-        generator: {
-          filename: 'assets/ammo/[name][ext]'
-        }
       }
     ]
   },
@@ -55,29 +36,17 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          from: 'node_modules/@3d-dice/dice-themes/themes',
-          to: 'assets/themes',
-          globOptions: {
-            ignore: ['**/.DS_Store'],
-          },
+          from: 'node_modules/@3d-dice/dice-box/dist/assets',
+          to: 'assets'
         },
         {
-          from: 'node_modules/@3d-dice/dice-box/dist/assets/ammo',
-          to: 'assets/ammo'
+          from: 'node_modules/@3d-dice/dice-themes/themes',
+          to: 'assets/themes'
         }
       ]
     })
   ],
   resolve: {
-    extensions: ['.js', '.json', '.wasm'],
-    fallback: {
-      fs: false,
-      path: false,
-      crypto: false
-    }
-  },
-  experiments: {
-    asyncWebAssembly: true,
-    topLevelAwait: true
+    extensions: ['.js', '.json', '.wasm']
   }
-};
+}
