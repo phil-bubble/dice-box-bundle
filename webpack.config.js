@@ -44,7 +44,10 @@ module.exports = {
       patterns: [
         {
           from: 'node_modules/@3d-dice/dice-themes/themes',
-          to: 'assets/themes'
+          to: 'assets/themes',
+          globOptions: {
+            ignore: ['**/.DS_Store'],
+          },
         }
       ]
     })
