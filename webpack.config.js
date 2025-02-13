@@ -8,6 +8,7 @@ const wasmBinary = fs.readFileSync(wasmPath);
 const wasmBase64 = wasmBinary.toString('base64');
 
 module.exports = {
+  mode: 'production',
   entry: './src/entry.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -21,8 +22,13 @@ module.exports = {
     clean: true,
   },
   optimization: {
-    splitChunks: false,
-    minimize: true,
+    runtimeChunk: false,
+    splitChunks: {
+      cacheGroups: {
+        default: false,
+        vendors: false,
+      },
+    },
   },
   module: {
     rules: [
