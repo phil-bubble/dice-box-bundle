@@ -6,8 +6,11 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'dice-box.bundle.js',
-    library: 'DiceBox',
-    libraryTarget: 'umd',
+    library: {
+      name: 'DiceBox',
+      type: 'umd',
+      export: 'default'
+    },
     globalObject: 'this',
     clean: true,
   },
