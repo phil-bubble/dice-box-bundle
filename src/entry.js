@@ -10,16 +10,41 @@ class ExtendedDiceBox extends DiceBox {
             theme: config.theme || 'default',
             scale: config.scale || 6,
             
-            // URLs
-            assetPath: config.assetPath,
-            origin: config.origin,
-            
             // Force offscreen rendering for better performance
             offscreen: true
         };
 
+        // Handle URLs carefully to avoid doubling
+        if (config.assetPath) {
+            try {
+                // Remove any trailing slashes
+                const cleanAssetPath = config.assetPath.replace(/\/+$/, '');
+                baseConfig.assetPath = cleanAssetPath + '/';
+                
+                // Set explicit WASM path to avoid URL doubling
+                baseConfig.wasmPath = `${cleanAssetPath}/ammo/ammo.wasm.wasm`;
+            } catch (e) {
+                console.error('Failed to process assetPath:', e);
+            }
+        }
+
+        if (config.origin) {
+            try {
+                // Remove any trailing slashes
+                const cleanOrigin = config.origin.replace(/\/+$/, '');
+                baseConfig.origin = cleanOrigin + '/';
+            } catch (e) {
+                console.error('Failed to process origin:', e);
+            }
+        }
+
         // Log configuration
-        console.log('🎲 DiceBox Configuration:', baseConfig);
+        console.log('🎲 DiceBox Configuration:', {
+            ...baseConfig,
+            assetPath: baseConfig.assetPath,
+            wasmPath: baseConfig.wasmPath,
+            origin: baseConfig.origin
+        });
 
         super(baseConfig);
     }
@@ -27,6 +52,17 @@ class ExtendedDiceBox extends DiceBox {
     async init() {
         try {
             console.log('🎲 DiceBox: Starting initialization...');
+            
+            // Verify WASM path before initialization
+            if (this.config.wasmPath) {
+                console.log('🎲 DiceBox: Checking WASM file...', this.config.wasmPath);
+                const response = await fetch(this.config.wasmPath);
+                if (!response.ok) {
+                    throw new Error(`WASM file not accessible: ${response.status} ${response.statusText}`);
+                }
+                console.log('🎲 DiceBox: WASM file is accessible');
+            }
+
             await super.init();
             console.log('🎲 DiceBox: Initialized successfully');
         } catch (error) {
